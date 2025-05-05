@@ -1,0 +1,5 @@
+models/
+mlruns/
+*.parquet.gzippredictions.csv
+venv/
+__pycache__/
