@@ -129,9 +129,9 @@ python predict.py \
 
 Запуск интерфейса MlFlow:
 
-    ```bash
-    mlflow ui --backend-store-uri file://$(pwd)/mlruns
-    ```
+```bash
+mlflow ui --backend-store-uri file://$(pwd)/mlruns
+```
 
 Интерфейс откроется по адресу по адресу http://localhost:5000
 
