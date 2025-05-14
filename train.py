@@ -7,10 +7,11 @@ import mlflow
 import mlflow.xgboost
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, precision_score, recall_score, roc_auc_score, accuracy_score
-import warnings
-
 from src.module import preprocess, build_chains, aggregate_chains, encode_and_merge
 
+import logging
+import warnings
+logging.getLogger('mlflow').setLevel(logging.ERROR)
 warnings.filterwarnings('ignore', category=FutureWarning)
 
 def train_transaction_model(df, features, output_path):
@@ -38,7 +39,7 @@ def train_transaction_model(df, features, output_path):
         }
         mlflow.log_metrics(metrics)
         model.save_model(output_path)
-        print(f'AUC: {metrics['auc']:.4f}, F1: {metrics['f1']:.4f}')
+        print(f'AUC: {metrics['auc']:.4f}, F1: {metrics['f1']:.4f}, Precision: {metrics['precision']:.4f}, Recall: {metrics['recall']:.4f}')
         return model
 
 def train_chain_model(chain_df, features, output_path):
@@ -54,10 +55,24 @@ def train_chain_model(chain_df, features, output_path):
         mlflow.log_params(params)
         model = xgb.XGBClassifier(**params)
         model.fit(X, y)
+
+        y_pred = model.predict(X)
         y_proba = model.predict_proba(X)[:, 1]
-        mlflow.log_metric('auc_chain', roc_auc_score(y, y_proba))
+
+        metrics = {
+            'auc_chain': roc_auc_score(y, y_proba),
+            'accuracy_chain': accuracy_score(y, y_pred),
+            'precision_chain': precision_score(y, y_pred),
+            'recall_chain': recall_score(y, y_pred),
+            'f1_chain': f1_score(y, y_pred)
+        }
+
+        mlflow.log_metrics(metrics)
         model.save_model(output_path)
+
+        print(f'AUC_chain: {metrics['auc_chain']:.4f}, F1_chain: {metrics['f1_chain']:.4f}, Precision_chain: {metrics['precision_chain']:.4f}, Recall_chain: {metrics['recall_chain']:.4f}')
         return model
+
 
 def train_final_model(df, features, output_path):
     print('Обучение model_final')
@@ -80,12 +95,13 @@ def train_final_model(df, features, output_path):
             'accuracy': accuracy_score(y_test, y_pred),
             'precision': precision_score(y_test, y_pred),
             'recall': recall_score(y_test, y_pred),
-            'f1-score': f1_score(y_test, y_pred)
+            'f1': f1_score(y_test, y_pred)
         }
         mlflow.log_metrics(metrics)
         model.save_model(output_path)
-        print(f'AUC: {metrics['auc']:.4f}, F1: {metrics['f1']:.4f}')
+        print(f'AUC: {metrics['auc']:.4f}, F1: {metrics['f1']:.4f}, Precision: {metrics['precision']:.4f}, Recall: {metrics['recall']:.4f}')
         return model
+
 
 def main(trans_path, id_path, output_dir):
     print('Чтение данных')

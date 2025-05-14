@@ -133,7 +133,7 @@ python predict.py \
 mlflow ui --backend-store-uri file://$(pwd)/mlruns
 ```
 
-Интерфейс откроется по адресу по адресу http://localhost:5000
+Интерфейс откроется по адресу по адресу http://127.0.0.1:5000
 
 ## Системные требования
 
