@@ -40,21 +40,19 @@ def main(trans_path, id_path, model_transaction_path, model_chain_path, model_fi
     features_final = features_transaction + ['chain_proba']
     df = predict_model(df, model_final_path, features_final, 'final')
 
-    df[['TransactionID',
+    df[['TransactionID', 'chain_id',
         'isFraud_transaction', 'fraud_score_transaction',
         'isFraud_chain', 'fraud_score_chain',
         'isFraud_final', 'fraud_score_final'
     ]].to_csv(output_path, index=False)
-    print('Предсказания сохранены в выполнены {output_path}')
+
+    print(f'Предсказания сохранены в выполнены {output_path}')
 
     print('Статистика по предсказаниям:')
     total = len(df)
     fraud_pred = df['isFraud_final'].sum()
     legit_pred = total - fraud_pred
     avg_score = df['fraud_score_final'].mean()
-    max_score = df['fraud_score_final'].max()
-    min_score = df['fraud_score_final'].min()
-    top10 = df['fraud_score_final'].sort_values(ascending=False).head(10).round(4).tolist()
 
     print(f'Всего транзакций: {total:,}')
     print(f'Мошеннических транзакций: {fraud_pred:,}')
